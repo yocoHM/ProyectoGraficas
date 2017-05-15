@@ -31,6 +31,7 @@
 #include "Platform.hpp"
 
 Object * tiki;
+Object * rock;
 Platform * centroTest;
 GLuint textureMode;
 
@@ -67,6 +68,8 @@ void init(void) {
   tiki->setRotation(-90,0,0);
   tiki->setScale(0.6, 0.6, 0.6);
 
+  rock = new Object("obj_f_500_v_252.obj");
+
   centroTest = new Platform();
   centroTest->setColor(255,255,1);
 }
@@ -77,15 +80,29 @@ void dibujarTiki() {
     tiki->setTranslation(posX, zPos, posY);
     tiki->Draw(textureMode);
     tiki->DrawBoundingBox();
-    if(tiki->intersects(centroTest))
-    {
-      printf("INTERSECT\n");
-    }
-    else
-    {
-      printf("NO INTERSECT\n");
-    }
+    // if(tiki->intersects(centroTest))
+    // {
+    //   printf("INTERSECT\n");
+    // }
+    // else
+    // {
+    //   printf("NO INTERSECT\n");
+    // }
   glPopMatrix();
+}
+
+void drawRocks() {
+    rock->setScale(7.0, 7.0, 7.0);
+    rock->setTranslation(-3.0, 0.0, -3.5);
+    rock->Draw(textureMode);
+
+    rock->setScale(8.0, 8.0, 7.0);
+    rock->setTranslation(0.0, 0.0, -3.5);
+    rock->Draw(textureMode);
+
+    rock->setScale(9.0, 7.0, 7.0);
+    rock->setTranslation(3.0, 0.0, -3.5);
+    rock->Draw(textureMode);
 }
 
 void cuadroIzqCentro() {
@@ -270,6 +287,7 @@ void display(void) {
     //movimiento de cámara
     gluLookAt (camX, camY, camZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+    drawRocks();
     dibujarTiki();
     dibujarPiso();
 
