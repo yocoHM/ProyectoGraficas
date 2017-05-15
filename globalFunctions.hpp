@@ -1,8 +1,6 @@
 #ifndef GLOBALFUNCTIONS_H
 #define GLOBALFUNCTIONS_H
-/* 
-    Function that loads a .obj model given a path
-*/
+
 #ifdef __APPLE__
     #include <GLUT/glut.h>
     #include <OpenGL/gl.h>
@@ -24,24 +22,24 @@
 
 #define SPEED_MULT 1
 
-extern int frame;//frame for fps counter
-extern int currenttime;//current time for fps counter
+//variables de control para manejar el movimiento del personaje
+extern int frame;
+extern int currenttime;
 extern int timebase;
 extern int elapsed;
+//variables de movimiento del personaje
 extern float posX;
 extern float posY;
 extern bool movingUp;
 extern bool movingDown;
 extern bool movingLeft;
 extern bool movingRight;
-extern float xSpeed;//rotation speed on X axis
-extern float ySpeed;//rotation speed on Y axis
+//velocidad en x y y del personaje
+extern float xSpeed;
+extern float ySpeed;
 
-
+//función para cargar un objeto
 GLMmodel* loadModel(const char* filename);
-unsigned int randr(unsigned int min, unsigned int max);
-void enableParams();
-void disableParams();
 
 
 #endif

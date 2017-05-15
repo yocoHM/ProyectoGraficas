@@ -1,16 +1,6 @@
-/*
-Alexis Matuk - A01021143
-Diego Vazquez - A01168095
-Gerardo Garcia Teruel - A01018057
-*/
-
 #include "Object.hpp"
 
-/*
-  Draw object taking into account translation, rotation, scale and center offset  
-*/
-void Object::Draw(GLuint _mode)
-{
+void Object::Draw(GLuint _mode) {
 	glPushMatrix();
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glTranslatef(transX,transY,transZ);  
@@ -24,27 +14,26 @@ void Object::Draw(GLuint _mode)
 	glPopMatrix();
 }
 
-/*
-    Set object's name
-*/
-void Object::setName(std::string _name)
+//constructor
+Object::Object()
 {
-	name = _name;
+	scaleX = 1;
+	scaleY = 1;
+	scaleZ = 1;
+	transX = 0;
+	transY = 0.5;
+	transZ = -1;	
+	rotX = 0;
+	rotY = 0;
+	rotZ = 0;
+	centerX = 0;
+	centerY = 0;
+	centerZ = 0;	
+	distance = 0;
 }
 
-/*
-  Get object's name  
-*/
-std::string Object::getName()
-{
-	return name;
-}
-
-/*
-    Initialize object's bounding box based on the model's vertices
-*/
-void Object::initBoundingBox()
-{
+//inicializar la caja de los límites del objeto
+void Object::initBoundingBox() {
 	if (model->numvertices == 0)
 		return;  
     max_x = min_x = model->vertices[3 + 0];
@@ -73,28 +62,10 @@ void Object::initBoundingBox()
 	vertexArray.push_back({min_x, max_y, max_z});
 	vertexArray.push_back({min_x, min_y, max_z});
 }
-/*
-  Pretty box used for programmer's peace of mind  
-*/
-/*
-	   6--------5
-	  /|	   /|
-	 / |	  / |
-	1--|-----0  |
-	|  |	 |	|
-	|  7-----|--4
-	| / 	 | /
-	|/		 |/
-	2--------3
-*/
 
-/*
-  Function to update the bouding box vertices  
-*/
-void Object::updateVertexArray()
-{	   
-	for(int i = 0; i < vertexArray.size(); i++)
-	{
+//acualizar el arreglo de vertices
+void Object::updateVertexArray() {	   
+	for(int i = 0; i < vertexArray.size(); i++) {
 		glm::vec4 vec(vertexArray[i][0], vertexArray[i][1], vertexArray[i][2], 1.0f);
 		vec = transformationMatrix * vec;
 		vertexArray[i][0] = vec.x;
@@ -103,13 +74,8 @@ void Object::updateVertexArray()
 	}
 }
 
-/*
-  Function to update the bounding box to new transforms.
-  the transformation matrix is inverted, then the points are returned to their identity and 
-  	the new transformations are applied.  
-*/
-void Object::updateBoundingBoxToTransforms()
-{	
+//actualizar la caja de límites de acuerdo a las transformaciones del objeto
+void Object::updateBoundingBoxToTransforms() {	
 	glm::vec4 inv;
 	transformationMatrix = glm::inverse(transformationMatrix);
 	updateVertexArray();
@@ -123,125 +89,13 @@ void Object::updateBoundingBoxToTransforms()
     updateVertexArray();	
 }
 
-
-/*
-   Get bounding box
-*/
+//obtener la caja de límites del objeto
 std::vector<std::vector<float>> Object::getBoundingBox()
 {
 	return vertexArray;
 }
 
-/*
-  Render front face of bounding box 
-*/
-void Object::front(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	// front face =================
-    glVertex3fv(v0);    // v0-v1-v2
-    glVertex3fv(v1);
-    glVertex3fv(v2);
-    glVertex3fv(v2);    // v2-v3-v0
-    glVertex3fv(v3);
-    glVertex3fv(v0);
-}
-
-/*
-  Render right face of bounding box 
-*/
-void Object::right(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	// right face =================
-    glVertex3fv(v0);    // v0-v3-v4
-    glVertex3fv(v3);
-    glVertex3fv(v4);
-    glVertex3fv(v4);    // v4-v5-v0
-    glVertex3fv(v5);
-    glVertex3fv(v0);
-}
-
-/*
-  Render top face of bounding box 
-*/
-void Object::top(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	// top face ===================
-    glVertex3fv(v0);    // v0-v5-v6
-    glVertex3fv(v5);
-    glVertex3fv(v6);
-    glVertex3fv(v6);    // v6-v1-v0
-    glVertex3fv(v1);
-    glVertex3fv(v0);
-}
-
-/*
-  Render left face of bounding box 
-*/
-void Object::left(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	// left face ===================
-    glVertex3fv(v6);    // 
-    glVertex3fv(v7);
-    glVertex3fv(v2);
-    glVertex3fv(v2);    // 
-    glVertex3fv(v1);
-    glVertex3fv(v6);
-}
-
-/*
-  Render back face of bounding box 
-*/
-void Object::back(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	 // back face ===================
-    glVertex3fv(v5);    // 
-    glVertex3fv(v6);
-    glVertex3fv(v7);
-    glVertex3fv(v7);    // 
-    glVertex3fv(v4);
-    glVertex3fv(v5);
-}
-
-/*
-  Render bottom face of bounding box 
-*/
-void Object::bottom(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7)
-{
-	 // bottom face ===================
-    glVertex3fv(v7);    // 
-    glVertex3fv(v2);
-    glVertex3fv(v3);
-    glVertex3fv(v3);    // 
-    glVertex3fv(v4);
-    glVertex3fv(v7);
-}
-
-/*
-  Draw entire bounding box
-*/
-void Object::DrawBoundingBox()
-{		
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//Activar wireframe		
-	glColor3f(1, 1, 0);
-	float * v0 = &vertexArray[0][0];
-	float * v1 = &vertexArray[1][0];
-	float * v2 = &vertexArray[2][0];
-	float * v3 = &vertexArray[3][0];
-	float * v4 = &vertexArray[4][0];
-	float * v5 = &vertexArray[5][0];
-	float * v6 = &vertexArray[6][0];
-	float * v7 = &vertexArray[7][0];
-	glBegin(GL_TRIANGLES);  // draw a cube with 12 triangles	
-    front(v0,v1,v2,v3,v4,v5,v6,v7);
-    right(v0,v1,v2,v3,v4,v5,v6,v7);
-    top(v0,v1,v2,v3,v4,v5,v6,v7);
-    left(v0,v1,v2,v3,v4,v5,v6,v7);
-    back(v0,v1,v2,v3,v4,v5,v6,v7);
-    bottom(v0,v1,v2,v3,v4,v5,v6,v7);             
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  		
-}
-
+//crear al modelo en la escena
 void Object::drawModel(GLuint _mode)
 {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -250,165 +104,44 @@ void Object::drawModel(GLuint _mode)
     glPopAttrib();
 }
 
-/*
-  Default constructor for object
-*/
-Object::Object()
-{
-	scaleX = 1;
-	scaleY = 1;
-	scaleZ = 1;
-	transX = 0;
-	transY = 0.5;
-	transZ = -1;	
-	rotX = 0;
-	rotY = 0;
-	rotZ = 0;
-	centerX = 0;
-	centerY = 0;
-	centerZ = 0;	
-	distance = 0;
-}
-
-Object::~Object()
-{
+//destructor
+Object::~Object() {
 	
 }
 
-/*
-  Constructor of object given a filename
-*/
-Object::Object(const char * filename):Object()
-{
+//constructor con parametro del nombre del archivo obj
+Object::Object(const char * filename):Object() {
 	model = loadModel(filename);
 	initBoundingBox();
 	updateBoundingBoxToTransforms();
 }
 
-/*
-  Set object parameters including offset
-*/
-void Object::setParams(float _centerX, float _centerY, float _centerZ, float _scaleX, float _scaleY, float _scaleZ, float _x, float _y, float _z, float _rotX, float _rotY, float _rotZ)
-{
-	scaleX = _scaleX;
-	scaleY = _scaleY;
-	scaleZ = _scaleZ;
-	transX = _x;
-	transY = _y;
-	transZ = _z;	
-	rotX = _rotX;
-	rotY = _rotY;
-	rotZ = _rotZ;
-	centerX = _centerX;
-	centerY = _centerY;
-	centerZ = _centerZ;
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Set object parameters and initialize their starting ones for further use.
-  The parameter map is used for resetting the object's values in runtime.
-*/
-void Object::setParams(float _scaleX, float _scaleY, float _scaleZ, float _x, float _y, float _z, float _rotX, float _rotY, float _rotZ)
-{	
-	if(initialParameterMap.size() <= 0)
-	{
-		initialParameterMap["scaleX"] = _scaleX;
-		initialParameterMap["scaleY"] = _scaleY;
-		initialParameterMap["scaleZ"] = _scaleZ;
-		initialParameterMap["transX"] = _x;
-		initialParameterMap["transY"] = _y;
-		initialParameterMap["transZ"] = _z;
-		initialParameterMap["rotX"] = _rotX;
-		initialParameterMap["rotY"] = _rotY;
-		initialParameterMap["rotZ"] = _rotZ;
-		initialParameterMap["centerX"] = centerX;
-		initialParameterMap["centerY"] = centerY;
-		initialParameterMap["centerZ"] = centerZ;
-	}	
-	scaleX = _scaleX;
-	scaleY = _scaleY;
-	scaleZ = _scaleZ;
-	transX = _x;
-	transY = _y;
-	transZ = _z;	
-	rotX = _rotX;
-	rotY = _rotY;
-	rotZ = _rotZ;	
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Set translation
-*/
-void Object::setTranslation(float x, float y, float z)
-{
+//traslación
+void Object::setTranslation(float x, float y, float z) {
 	transX = x;
 	transY = y;
 	transZ = z;	
 	updateBoundingBoxToTransforms();
 }
 
-/*
-  Set scale
-*/
-void Object::setScale(float x, float y, float z)
-{
+//escalamiento
+void Object::setScale(float x, float y, float z) {
 	scaleX = x;
 	scaleY = y;
 	scaleZ = z;
 	updateBoundingBoxToTransforms();
 }
 
-/*
-  Set rotation
-*/
-void Object::setRotation(float x, float y, float z)
-{	
+//rotación
+void Object::setRotation(float x, float y, float z) {	
 	rotX = x;
 	rotY = y;
 	rotZ = z;
 	updateBoundingBoxToTransforms();
 }
 
-/*
-  Add translation
-*/
-void Object::addTranslation(float x, float y, float z)
-{
-	transX += x;
-	transY += y;
-	transZ += z;
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Add rotation
-*/
-void Object::addRotation(float x, float y, float z)
-{
-	rotX += x;
-	rotY += y;
-	rotZ += z;
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Add scale
-*/
-void Object::addScale(float x, float y, float z)
-{
-	scaleX += x;
-	scaleY += y;
-	scaleZ += z;
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Get object parameters as map
-*/
-std::map<std::string, float> Object::getParams()
-{
+//obtener los parámetros del objeto
+std::map<std::string, float> Object::getParams() {
 	parameterMap["scaleX"] = scaleX;
 	parameterMap["scaleY"] = scaleY;
 	parameterMap["scaleZ"] = scaleZ;
@@ -424,56 +157,10 @@ std::map<std::string, float> Object::getParams()
 	return parameterMap;
 }
 
-/*
-  Get initial parameters as map for reset
-*/
-std::map<std::string, float> Object::getInitialParams()
-{
-	return initialParameterMap;
-}
-
-/*
-  Set an object's parameters given a map
-*/
-void Object::setParamsByMap(std::map<std::string, float> _newParams)
-{
-	scaleX = _newParams["scaleX"];
-	scaleY = _newParams["scaleY"];
-	scaleZ = _newParams["scaleZ"];
-	transX = _newParams["transX"];
-	transY = _newParams["transY"];
-	transZ = _newParams["transZ"];
-	rotX = _newParams["rotX"];
-	rotY = _newParams["rotY"];
-	rotZ = _newParams["rotZ"];
-	centerX = _newParams["centerX"];
-	centerY = _newParams["centerY"];
-	centerZ = _newParams["centerZ"];	
-	updateBoundingBoxToTransforms();
-}
-
-/*
-  Get model
-*/
-GLMmodel * Object::getModel()
-{
-	return model;
-}
-
-/*
-  Reset objects to its initial parameters
-*/
-void Object::resetParams()
-{
-	setParamsByMap(initialParameterMap);
-}
-
-
-void Object::SATtest( glm::vec3 axis, std::vector<std::vector<float>> points, float& minAlong, float& maxAlong )
-{	
+//métodos para saber si dos objetos están intersectando
+void Object::SATtest( glm::vec3 axis, std::vector<std::vector<float>> points, float& minAlong, float& maxAlong ) {	
 	minAlong=10000, maxAlong=-10000;
-	for( int i = 0 ; i < points.size() ; i++ )
-	{
+	for( int i = 0 ; i < points.size() ; i++ ) {
 		glm::vec3 point(points[i][0], points[i][1], points[i][2]);
 		float dotVal = glm::dot(point, axis);
 		if( dotVal < minAlong )  minAlong=dotVal;
@@ -481,32 +168,26 @@ void Object::SATtest( glm::vec3 axis, std::vector<std::vector<float>> points, fl
 	}
 }
 
-bool Object::intersects( Object * platform_2 )
-{
+bool Object::intersects( Object * platform_2 ) {
 
-  // Get the normals for one of the shapes,
-  for( int i = 0 ; i < 3 ; i++ )
-  {
+  //obtener las normales para los objetos
+  for( int i = 0 ; i < 3 ; i++ ) {
   	glm::vec3 axis(transformationMatrix[i].x, transformationMatrix[i].y, transformationMatrix[i].z);
     float shape1Min, shape1Max, shape2Min, shape2Max ;
     SATtest( axis, vertexArray, shape1Min, shape1Max ) ;
     SATtest( axis, platform_2->getBoundingBox(), shape2Min, shape2Max ) ;
-    if( !overlaps( shape1Min, shape1Max, shape2Min, shape2Max ) )
-    {
-      return 0 ; // NO INTERSECTION
+    if( !overlaps( shape1Min, shape1Max, shape2Min, shape2Max ) ) {
+    	//aqui no hay intersección
+      return 0 ;
     }
 
-    // otherwise, go on with the next test
   }
 
-  // TEST SHAPE2.normals as well
-
-  // if overlap occurred in ALL AXES, then they do intersect
+  //aqui intersecta
   return 1 ;
 }
 
-bool Object::overlaps( float min1, float max1, float min2, float max2 )
-{
+bool Object::overlaps( float min1, float max1, float min2, float max2 ) {
   return isBetweenOrdered( min2, min1, max1 ) || isBetweenOrdered( min1, min2, max2 ) ;
 }
 

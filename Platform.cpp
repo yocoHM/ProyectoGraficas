@@ -1,7 +1,7 @@
 #include "Platform.hpp"
 
-Platform::Platform():Object(), no_mat{0.0, 0.0, 0.0, 1.0}, mat_diffuse{1, 1, 1, 1.0}, no_shininess{0.0}, low_shininess{5.0}
-{
+//constructor
+Platform::Platform():Object(), no_mat{0.0, 0.0, 0.0, 1.0}, mat_diffuse{1, 1, 1, 1.0}, no_shininess{0.0}, low_shininess{5.0} {
 	scaleX = 1;
 	scaleY = 0.25;
 	scaleZ = 1;
@@ -25,23 +25,20 @@ Platform::Platform():Object(), no_mat{0.0, 0.0, 0.0, 1.0}, mat_diffuse{1, 1, 1, 
 	updateBoundingBoxToTransforms();
 }
 
-void Platform::setColor(Color _color)
-{
+//asiganción de color
+void Platform::setColor(Color _color) {
 	color = _color;
-	if(_color == Color::RED)
-	{
+	if(_color == Color::RED) {
 		r = 1;
 		g = 0;
 		b = 0;
 	}
-	else if(_color == Color::GREEN)
-	{
+	else if(_color == Color::GREEN) {
 		r = 0;
 		g = 1;
 		b = 0;
 	}
-	else if(_color == Color::BLUE)
-	{
+	else if(_color == Color::BLUE) {
 		r = 0;
 		g = 0;
 		b = 1;
@@ -51,8 +48,14 @@ void Platform::setColor(Color _color)
 	mat_diffuse[2] = b;
 }
 
-void Platform::initBoundingBox()
+//saber si la plataforma está activa o no
+bool Platform::getActive()
 {
+	return active;
+}
+
+//iniciar la caja para saber los límites de la plataforma
+void Platform::initBoundingBox() {
 	max_x = 0.5;
 	max_y = 0.5;
 	max_z = 0.5;
@@ -69,10 +72,10 @@ void Platform::initBoundingBox()
 	vertexArray.push_back({min_x, min_y, max_z});
 }
 
-void Platform::Draw()
-{	
-	if(active)
-	{
+//crear la platadorma en la escena
+void Platform::Draw() {	
+	//si la plataforma está activa, se crea en la escena
+	if(active) {
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glPushMatrix();
 				glTranslatef(transX, transY, transZ);
@@ -88,23 +91,18 @@ void Platform::Draw()
 	}	
 }
 
-void Platform::changeActiveColor(Color _activeColor)
-{
+//cambio del color actual
+void Platform::changeActiveColor(Color _activeColor) {
 	activeColor = _activeColor;
-	if(activeColor == color)
-	{
+	if(activeColor == color) {
 		active = false;
 	}
-	else
-	{
+	else {
 		active = true;
 	}
 }
 
-bool Platform::getActive()
-{
-	return active;
-}
+
 
 Platform::~Platform()
 {
