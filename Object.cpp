@@ -259,7 +259,7 @@ Object::Object()
 	scaleY = 1;
 	scaleZ = 1;
 	transX = 0;
-	transY = 0;
+	transY = 0.5;
 	transZ = -1;	
 	rotX = 0;
 	rotY = 0;

@@ -22,11 +22,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm.h"
 
-#define SPEED_MULT 1.5
+#define SPEED_MULT 1
 
 extern int frame;//frame for fps counter
 extern int currenttime;//current time for fps counter
 extern int timebase;
+extern int elapsed;
 extern float posX;
 extern float posY;
 extern bool movingUp;
@@ -38,8 +39,9 @@ extern float ySpeed;//rotation speed on Y axis
 
 
 GLMmodel* loadModel(const char* filename);
+unsigned int randr(unsigned int min, unsigned int max);
 void enableParams();
 void disableParams();
-void idle();
+
 
 #endif

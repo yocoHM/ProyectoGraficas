@@ -1,17 +1,17 @@
 #include "globalFunctions.hpp"
 
-
 int frame = 0;
 int currenttime = 0;
 int timebase = 0;
+int elapsed = 0;
 float posX = 0;
 float posY = 0;
 bool movingUp = false;
 bool movingDown = false;
 bool movingLeft = false;
 bool movingRight = false;
-float xSpeed = 0.1 * SPEED_MULT;
-float ySpeed = 0.1 * SPEED_MULT;
+float xSpeed = 0.001 * SPEED_MULT;
+float ySpeed = 0.001 * SPEED_MULT;
 
 
 GLMmodel* loadModel(const char* filename)
@@ -53,27 +53,9 @@ void disableParams()
 	glDisable(GL_TEXTURE_2D);
 }
 
-void moveTiki()
-{
-	if(movingUp)
-        posY -= xSpeed;
-    if(movingDown)
-        posY += xSpeed;
-    if(movingLeft)
-        posX -= ySpeed;
-    if(movingRight)
-        posX += ySpeed;
-}
 
-void idle()
-{
-	frame++;
-	currenttime = glutGet(GLUT_ELAPSED_TIME);
-	if (currenttime - timebase > 0.1)
-	{
-		moveTiki();
-		timebase = currenttime;
-		frame = 0;
-		glutPostRedisplay();
-	}
+unsigned int randr(unsigned int min, unsigned int max)
+{	
+	double scaled = (double)rand()/RAND_MAX;
+	return (max - min +1)*scaled + min;
 }

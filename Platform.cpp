@@ -16,7 +16,7 @@ Platform::Platform():Object(), no_mat{0.0, 0.0, 0.0, 1.0}, mat_diffuse{1, 1, 1, 
 	centerZ = 0;	
 	distance = 0;
 	active = true;
-
+	activeColor = Color::WHITE;
 	r = 1;
 	g = 1;
 	b = 1;
@@ -25,11 +25,27 @@ Platform::Platform():Object(), no_mat{0.0, 0.0, 0.0, 1.0}, mat_diffuse{1, 1, 1, 
 	updateBoundingBoxToTransforms();
 }
 
-void Platform::setColor(int _r, int _g, int _b)
+void Platform::setColor(Color _color)
 {
-	r = (float) _r / (float) 255;
-	g = (float) _g / (float) 255;
-	b = (float) _b / (float) 255;
+	color = _color;
+	if(_color == Color::RED)
+	{
+		r = 1;
+		g = 0;
+		b = 0;
+	}
+	else if(_color == Color::GREEN)
+	{
+		r = 0;
+		g = 1;
+		b = 0;
+	}
+	else if(_color == Color::BLUE)
+	{
+		r = 0;
+		g = 0;
+		b = 1;
+	}	
 	mat_diffuse[0] = r;
 	mat_diffuse[1] = g;
 	mat_diffuse[2] = b;
@@ -59,6 +75,7 @@ void Platform::Draw()
 	{
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glPushMatrix();
+				glTranslatef(transX, transY, transZ);
 				glScalef(scaleX, scaleY, scaleZ);
 				glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -71,6 +88,23 @@ void Platform::Draw()
 	}	
 }
 
+void Platform::changeActiveColor(Color _activeColor)
+{
+	activeColor = _activeColor;
+	if(activeColor == color)
+	{
+		active = false;
+	}
+	else
+	{
+		active = true;
+	}
+}
+
+bool Platform::getActive()
+{
+	return active;
+}
 
 Platform::~Platform()
 {
