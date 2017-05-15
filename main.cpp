@@ -21,33 +21,22 @@
     #include <GL/glu.h>
 #endif
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "glm.h"
+#include "Object.hpp"
 
-GLMmodel * modelo;
+Object * tiki;
 GLuint textureMode;
-
-
-//arreglo de los nombres de los modelos
-char * array[1];
-//arreglo de los modelos .obj
-GLMmodel * models[1];
-//lista de los modelos colocados en el centro de la escena
-GLuint model_lists[1];
 
 float camX=0.0, camY=3.0, camZ=3.0;
 
-float posX = 0.0, posY = 0.0;
 bool mostrarVerdes = true;
 bool mostrarRojos = true;
 bool mostrarAzul = true;
-
-// función para inicializar el arreglo con los nombres de los objetos
-void cargarObjs() {
-  //cabeza tiki
-  array[0] = "Creature.obj";
-}
 
 void init(void) {
   //luces
@@ -66,38 +55,21 @@ void init(void) {
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   
   glEnable(GL_DEPTH_TEST);
-
-  modelo = glmReadOBJ( "Creature.obj" );
-  glmUnitize(modelo);
-  glmFacetNormals( modelo );
-  glmVertexNormals( modelo, 90.0, GL_TRUE);
   
   glEnable(GL_CULL_FACE);
   
   textureMode = GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE | GLM_2_SIDED;
   GLuint mode = GLM_FLAT | GLM_MATERIAL | GLM_TEXTURE;
-  
-  // inicializar el arreglo con los nombres de los objetos
-  cargarObjs();
-  
-  // ciclo para cargar los objetos al arreglo de modelos
-  int i = 0;
-  for(; i < 1; ++i) {
-    models[i] = glmReadOBJ(array[i]);
-    glmUnitize(models[i]);
-    model_lists[i] = glmList(models[i], textureMode);
-  }
+
+  tiki = new Object("Creature.obj");
+  tiki->setRotation(-90,0,0);
+  tiki->setScale(0.6, 0.6, 0.6);
 }
 
 void dibujarTiki() {
   glPushMatrix();
-    glRotatef(-90.0,1.0,0.0,0.0);
-    glScalef(0.6,0.6,0.6);
-    //z es arriba
-    glTranslatef(posX,posY,1.0);
-    glCallList(model_lists[0]);
-    glmDraw( modelo, textureMode );
-    // glmDraw(modelo, textureMode);
+    tiki->setTranslation(posX, 1, posY);
+    tiki->Draw(textureMode);
   glPopMatrix();
 }
 
@@ -324,28 +296,16 @@ void reshape (int w, int h) {
 void keyboard(unsigned char c, int x, int y) {
   switch(c) {
     case 'w':
-      if (posY < 2.0) {
-        posY += 0.5;
-      }
-      glutPostRedisplay();
+      movingUp = true;
       break;
     case 's':
-      if (posY > -2.0) {
-        posY -= 0.5;
-      }
-      glutPostRedisplay();
+      movingDown = true;
       break;
     case 'a':
-      if (posX > -2.0) {
-        posX -= 0.5;
-      }
-      glutPostRedisplay();
+      movingLeft = true;
       break;
     case 'd':
-      if (posX < 2.0) {
-        posX += 0.5;
-      }
-      glutPostRedisplay();
+      movingRight = true;
       break;
     case 'g':
       if (mostrarVerdes) {
@@ -374,12 +334,61 @@ void keyboard(unsigned char c, int x, int y) {
       }
       glutPostRedisplay();
       break;
-    // case 27:
-    //   exit(0);
-    //   break;
+    case 27:
+      exit(0);
+      break;
     default:
       break;
   }
+}
+
+
+//función para utilizar el teclado y mover la cámara
+void keyboardUp(unsigned char c, int x, int y) {
+  switch(c) {
+    case 'w':
+      movingUp = false;
+      break;
+    case 's':
+      movingDown = false;
+      break;
+    case 'a':
+      movingLeft = false;
+      break;
+    case 'd':
+      movingRight = false;
+      break;
+    case 'g':
+      if (mostrarVerdes) {
+        mostrarVerdes = false;
+      }
+      else {
+        mostrarVerdes = true;
+      }
+      break;
+    case 'r':
+      if (mostrarRojos) {
+        mostrarRojos = false;
+      }
+      else {
+        mostrarRojos = true;
+      }
+      break;
+    case 'b':
+      if (mostrarAzul) {
+        mostrarAzul = false;
+      }
+      else {
+        mostrarAzul = true;
+      }
+      break;
+    case 27:
+      exit(0);
+      break;
+    default:
+      break;
+  }
+  glutPostRedisplay();
 }
 
 //main
@@ -391,8 +400,10 @@ int main(int argc, char** argv) {
   glutCreateWindow (argv[0]);
   init ();
   glutDisplayFunc(display);
+  glutIdleFunc(idle);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
+    glutKeyboardUpFunc(keyboardUp);
   glutMainLoop();
   return 0;
 }
