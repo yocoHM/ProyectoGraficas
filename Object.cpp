@@ -220,7 +220,7 @@ void Object::bottom(float * v0, float * v1, float * v2, float * v3, float * v4, 
   Draw entire bounding box
 */
 void Object::DrawBoundingBox()
-{	
+{		
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//Activar wireframe		
 	glColor3f(1, 1, 0);
 	float * v0 = &vertexArray[0][0];
@@ -239,7 +239,7 @@ void Object::DrawBoundingBox()
     back(v0,v1,v2,v3,v4,v5,v6,v7);
     bottom(v0,v1,v2,v3,v4,v5,v6,v7);             
 	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  		
 }
 
 void Object::drawModel(GLuint _mode)
@@ -260,7 +260,7 @@ Object::Object()
 	scaleZ = 1;
 	transX = 0;
 	transY = 0;
-	transZ = 0;	
+	transZ = -1;	
 	rotX = 0;
 	rotY = 0;
 	rotZ = 0;
@@ -466,4 +466,50 @@ GLMmodel * Object::getModel()
 void Object::resetParams()
 {
 	setParamsByMap(initialParameterMap);
+}
+
+
+void Object::SATtest( glm::vec3 axis, std::vector<std::vector<float>> points, float& minAlong, float& maxAlong )
+{	
+	minAlong=10000, maxAlong=-10000;
+	for( int i = 0 ; i < points.size() ; i++ )
+	{
+		glm::vec3 point(points[i][0], points[i][1], points[i][2]);
+		float dotVal = glm::dot(point, axis);
+		if( dotVal < minAlong )  minAlong=dotVal;
+		if( dotVal > maxAlong )  maxAlong=dotVal;
+	}
+}
+
+bool Object::intersects( Object * platform_2 )
+{
+
+  // Get the normals for one of the shapes,
+  for( int i = 0 ; i < 3 ; i++ )
+  {
+  	glm::vec3 axis(transformationMatrix[i].x, transformationMatrix[i].y, transformationMatrix[i].z);
+    float shape1Min, shape1Max, shape2Min, shape2Max ;
+    SATtest( axis, vertexArray, shape1Min, shape1Max ) ;
+    SATtest( axis, platform_2->getBoundingBox(), shape2Min, shape2Max ) ;
+    if( !overlaps( shape1Min, shape1Max, shape2Min, shape2Max ) )
+    {
+      return 0 ; // NO INTERSECTION
+    }
+
+    // otherwise, go on with the next test
+  }
+
+  // TEST SHAPE2.normals as well
+
+  // if overlap occurred in ALL AXES, then they do intersect
+  return 1 ;
+}
+
+bool Object::overlaps( float min1, float max1, float min2, float max2 )
+{
+  return isBetweenOrdered( min2, min1, max1 ) || isBetweenOrdered( min1, min2, max2 ) ;
+}
+
+bool Object::isBetweenOrdered( float val, float lowerBound, float upperBound ) {
+  return lowerBound <= val && val <= upperBound ;
 }

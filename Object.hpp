@@ -52,7 +52,7 @@ public:
 	void addScale(float x, float y, float z);
 	GLMmodel * getModel();
 	std::string getName();
-	void initBoundingBox();	
+	virtual void initBoundingBox();	
 	void DrawBoundingBox();
 	void updateBoundingBoxToTransforms();
 	virtual void updateVertexArray();	
@@ -69,6 +69,11 @@ public:
 	void right(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7);
 	void top(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7);
 	void bottom(float * v0, float * v1, float * v2, float * v3, float * v4, float * v5, float * v6, float * v7);
+
+	void SATtest( glm::vec3 axis, std::vector<std::vector<float>> points, float& minAlong, float& maxAlong );
+	bool intersects( Object * platform_2 );
+	bool overlaps( float min1, float max1, float min2, float max2 );
+	bool isBetweenOrdered( float val, float lowerBound, float upperBound );
 };
 
 #endif

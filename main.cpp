@@ -28,8 +28,10 @@
 #include <stdbool.h>
 #include "glm.h"
 #include "Object.hpp"
+#include "Platform.hpp"
 
 Object * tiki;
+Platform * centroTest;
 GLuint textureMode;
 
 float camX=0.0, camY=3.0, camZ=3.0;
@@ -64,31 +66,25 @@ void init(void) {
   tiki = new Object("Creature.obj");
   tiki->setRotation(-90,0,0);
   tiki->setScale(0.6, 0.6, 0.6);
+
+  centroTest = new Platform();
+  centroTest->setColor(255,255,1);
 }
 
 void dibujarTiki() {
   glPushMatrix();
-    tiki->setTranslation(posX, 1, posY);
+    float zPos = tiki->getParams()["transY"];
+    tiki->setTranslation(posX, zPos, posY);
     tiki->Draw(textureMode);
-  glPopMatrix();
-}
-
-void cuadroCentro() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //verde
-  GLfloat mat_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(0.0, 0.0, 0.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
+    tiki->DrawBoundingBox();
+    if(tiki->intersects(centroTest))
+    {
+      printf("INTERSECT\n");
+    }
+    else
+    {
+      printf("NO INTERSECT\n");
+    }
   glPopMatrix();
 }
 
@@ -246,22 +242,23 @@ void cuadroIzqAdelante() {
 
 void dibujarPiso() {
   //fila atras
-  if (mostrarRojos) {
-    cuadroCentroAtras();
-    cuadroIzqCentro();
-    cuadroDerAdelante();
-  }
-  if (mostrarAzul) {
-    cuadroIzqAtras();
-    cuadroDerCentro();
-    cuadroCentroAdelante();
-  }
+  centroTest->Draw();
+  // if (mostrarRojos) {
+  //   cuadroCentroAtras();
+  //   cuadroIzqCentro();
+  //   cuadroDerAdelante();
+  // }
+  // if (mostrarAzul) {
+  //   cuadroIzqAtras();
+  //   cuadroDerCentro();
+  //   cuadroCentroAdelante();
+  // }
   
-  if (mostrarVerdes) {
-    cuadroDerAtras();
-    cuadroCentro();
-    cuadroIzqAdelante();
-  }
+  // if (mostrarVerdes) {
+  //   cuadroDerAtras();
+  //   cuadroCentro();
+  //   cuadroIzqAdelante();
+  // }
   
 }
 
