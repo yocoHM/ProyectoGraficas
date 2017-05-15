@@ -25,10 +25,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <stdbool.h>
 #include "glm.h"
 #include "Object.hpp"
 #include "Platform.hpp"
+#include "SOIL.h"
 
 Object * tiki;
 Object * rock;
@@ -40,6 +42,34 @@ float camX=0.0, camY=3.0, camZ=3.0;
 bool mostrarVerdes = true;
 bool mostrarRojos = true;
 bool mostrarAzul = true;
+
+static GLuint texName[2];
+
+GLfloat ctrlpoints[4][4][3] =
+{
+    {
+        {-1.5, -1.5, 0.0},
+        {-0.5, -1.5, 0.5},
+        {0.5, -1.5, 1.0},
+        {1.5, -1.5, -0.5}},
+    {
+        {-1.5, -0.5, 0.0},
+        {-0.5, -0.5, 0.5},
+        {0.5, -0.5, 1.0},
+        {1.5, -0.5, -0.5}},
+    {
+        {-1.5, 0.5, 0.0},
+        {-0.5, 0.5, 0.5},
+        {0.5, 0.5, 1.0},
+        {1.5, 0.5, -0.5}},
+    {
+        {-1.5, 1.5, 0.0},
+        {-0.5, 1.5, 0.5},
+        {0.5, 1.5, 1.0},
+        {1.5, 1.5, -0.5}}
+};
+
+GLfloat texpts[2][2][2] = {{{0.0, 0.0}, {0.0, 1.0}}, {{1.0, 0.0}, {1.0, 1.0}}};
 
 void init(void) {
   //luces
@@ -59,8 +89,6 @@ void init(void) {
   
   glEnable(GL_DEPTH_TEST);
   
-  glEnable(GL_CULL_FACE);
-  
   textureMode = GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE | GLM_2_SIDED;
   GLuint mode = GLM_FLAT | GLM_MATERIAL | GLM_TEXTURE;
 
@@ -72,6 +100,25 @@ void init(void) {
 
   centroTest = new Platform();
   centroTest->setColor(255,255,1);
+
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
+  glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, 4, 0, 1, 12, 4, &ctrlpoints[0][0][0]);
+  glMap2f(GL_MAP2_TEXTURE_COORD_2, 0, 1, 2, 2, 0, 1, 4, 2, &texpts[0][0][0]);
+  glEnable(GL_MAP2_TEXTURE_COORD_2);
+  glEnable(GL_MAP2_VERTEX_3);
+  glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+  
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  
+  
+  int width_1, height_1;
+  unsigned char* image_1 = SOIL_load_image("lava.png", &width_1, &height_1, 0, SOIL_LOAD_RGB);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_1,  height_1, 0, GL_RGB, GL_UNSIGNED_BYTE, image_1);
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, width_1, height_1, 0, GL_RGB, GL_UNSIGNED_BYTE, image_1);
+  glEnable(GL_TEXTURE_2D);
 }
 
 void dibujarTiki() {
@@ -103,6 +150,21 @@ void drawRocks() {
     rock->setScale(9.0, 7.0, 7.0);
     rock->setTranslation(3.0, 0.0, -3.5);
     rock->Draw(textureMode);
+}
+
+void drawLava() {
+  glPushMatrix();
+    
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+      glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, 4, 0, 1, 12, 4, &ctrlpoints[0][0][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0, 1, 2, 2, 0, 1, 4, 2, &texpts[0][0][0]);
+      glBindTexture(GL_TEXTURE_2D, texName[0]);
+      glTranslatef(0.0, -4.0, 0.0);
+      glRotatef(-90.0, 1.0, 0.0, 0.0);
+      glScalef(7.0, 5.0, 5.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    
+  glPopMatrix();
 }
 
 void cuadroIzqCentro() {
@@ -290,6 +352,9 @@ void display(void) {
     drawRocks();
     dibujarTiki();
     dibujarPiso();
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+      drawLava();
+    glPopAttrib();
 
   glPopMatrix();
 
@@ -418,7 +483,9 @@ int main(int argc, char** argv) {
   glutIdleFunc(idle);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
-    glutKeyboardUpFunc(keyboardUp);
+  glutKeyboardUpFunc(keyboardUp);
+
   glutMainLoop();
+
   return 0;
 }
