@@ -3,14 +3,16 @@
 
 #include "Object.hpp"
 
-typedef struct RGB{
-		float r;
-		float g;
-		float b;
-	}RGB;
-
 class Platform: public Object{
-private:
+	public: enum class Color{
+		GREEN,
+		RED,
+		BLUE, 
+		WHITE
+	};
+private:	
+	Color color;
+	Color activeColor;
 	float r;
 	float g;
 	float b;
@@ -19,12 +21,14 @@ private:
 	GLfloat mat_diffuse[4];
 	GLfloat no_shininess[1];
 	GLfloat low_shininess[1];
-public:	
+public:		
 	Platform();
 	~Platform();
-	void setColor(int r, int g, int b);
+	void setColor(Color _color);
+	bool getActive();
 	virtual void initBoundingBox();
-	void Draw();		
+	void Draw();	
+	void changeActiveColor(Color _activeColor);	
 };
 
 #endif

@@ -26,15 +26,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #include "glm.h"
 #include "Object.hpp"
 #include "Platform.hpp"
+#include "Grid.hpp"
 
+Grid * grid;
 Object * tiki;
 Platform * centroTest;
 GLuint textureMode;
+Platform::Color nextColor;
+int ww;
+int wh;
 
-float camX=0.0, camY=3.0, camZ=3.0;
+float camX=2.0, camY=4.0, camZ=7.0;
 
 bool mostrarVerdes = true;
 bool mostrarRojos = true;
@@ -65,10 +71,17 @@ void init(void) {
 
   tiki = new Object("Creature.obj");
   tiki->setRotation(-90,0,0);
-  tiki->setScale(0.6, 0.6, 0.6);
+  tiki->setScale(0.4, 0.4, 0.4);
 
   centroTest = new Platform();
-  centroTest->setColor(255,255,1);
+  centroTest->setScale(1.5,1.5,1.5);
+  centroTest->setColor(Platform::Color::RED);
+  centroTest->setTranslation(2,3.1,0);
+
+  grid = new Grid(5,5);
+
+  nextColor = Platform::Color::RED;
+  centroTest->setColor(nextColor);
 }
 
 void dibujarTiki() {
@@ -76,203 +89,26 @@ void dibujarTiki() {
     float zPos = tiki->getParams()["transY"];
     tiki->setTranslation(posX, zPos, posY);
     tiki->Draw(textureMode);
-    tiki->DrawBoundingBox();
-    if(tiki->intersects(centroTest))
+    if(!grid->tikiLives(tiki))
     {
-      printf("INTERSECT\n");
+      printf("YA ME MORIBUNDEE\n");
     }
     else
     {
-      printf("NO INTERSECT\n");
+      printf("YA ESTOY VIVITO AHORA MIMITO\n");
     }
   glPopMatrix();
-}
-
-void cuadroIzqCentro() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //rojo
-  GLfloat mat_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(-1.0, 0.0, 0.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroDerCentro() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //azul
-  GLfloat mat_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(1.0, 0.0, 0.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroCentroAtras() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //rojo
-  GLfloat mat_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(0.0, 0.0, -1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroIzqAtras() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //azul
-  GLfloat mat_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(-1.0, 0.0, -1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroDerAtras() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //verde
-  GLfloat mat_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(1.0, 0.0, -1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroDerAdelante() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //rojo
-  GLfloat mat_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(1.0, 0.0, 1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroCentroAdelante() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //azul
-  GLfloat mat_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(0.0, 0.0, 1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void cuadroIzqAdelante() {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  //verde
-  GLfloat mat_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
-
-  glPushMatrix();
-    glScalef(1.0, 0.25, 1.0);
-    glTranslatef(-1.0, 0.0, 1.0);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
-    glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-    glutSolidCube(1.0);
-  glPopMatrix();
-}
-
-void dibujarPiso() {
-  //fila atras
-  centroTest->Draw();
-  // if (mostrarRojos) {
-  //   cuadroCentroAtras();
-  //   cuadroIzqCentro();
-  //   cuadroDerAdelante();
-  // }
-  // if (mostrarAzul) {
-  //   cuadroIzqAtras();
-  //   cuadroDerCentro();
-  //   cuadroCentroAdelante();
-  // }
-  
-  // if (mostrarVerdes) {
-  //   cuadroDerAtras();
-  //   cuadroCentro();
-  //   cuadroIzqAdelante();
-  // }
-  
 }
 
 //función para dibujar la casa
 void display(void) {
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
   glPushMatrix();
     //movimiento de cámara
-    gluLookAt (camX, camY, camZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-
+    gluLookAt (camX, camY, camZ, camX, 0.0, 0.0, 0.0, 1.0, 0.0);    
     dibujarTiki();
-    dibujarPiso();
-
+    grid->Draw();
+    centroTest->Draw();
   glPopMatrix();
 
   glutSwapBuffers();
@@ -280,6 +116,8 @@ void display(void) {
 
 //función para hacer el reshape de los objetos cuando la venta se hace más grande o más pequeña
 void reshape (int w, int h) {
+  ww = w;
+  wh = h;
   glViewport (0, 0, (GLsizei) w, (GLsizei) h);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -303,33 +141,6 @@ void keyboard(unsigned char c, int x, int y) {
       break;
     case 'd':
       movingRight = true;
-      break;
-    case 'g':
-      if (mostrarVerdes) {
-        mostrarVerdes = false;
-      }
-      else {
-        mostrarVerdes = true;
-      }
-      glutPostRedisplay();
-      break;
-    case 'r':
-      if (mostrarRojos) {
-        mostrarRojos = false;
-      }
-      else {
-        mostrarRojos = true;
-      }
-      glutPostRedisplay();
-      break;
-    case 'b':
-      if (mostrarAzul) {
-        mostrarAzul = false;
-      }
-      else {
-        mostrarAzul = true;
-      }
-      glutPostRedisplay();
       break;
     case 27:
       exit(0);
@@ -355,30 +166,6 @@ void keyboardUp(unsigned char c, int x, int y) {
     case 'd':
       movingRight = false;
       break;
-    case 'g':
-      if (mostrarVerdes) {
-        mostrarVerdes = false;
-      }
-      else {
-        mostrarVerdes = true;
-      }
-      break;
-    case 'r':
-      if (mostrarRojos) {
-        mostrarRojos = false;
-      }
-      else {
-        mostrarRojos = true;
-      }
-      break;
-    case 'b':
-      if (mostrarAzul) {
-        mostrarAzul = false;
-      }
-      else {
-        mostrarAzul = true;
-      }
-      break;
     case 27:
       exit(0);
       break;
@@ -388,8 +175,56 @@ void keyboardUp(unsigned char c, int x, int y) {
   glutPostRedisplay();
 }
 
+void moveTiki()
+{
+  if(movingUp)
+        posY -= xSpeed * (currenttime - timebase);
+    if(movingDown)
+        posY += xSpeed * (currenttime - timebase);
+    if(movingLeft)
+        posX -= ySpeed * (currenttime - timebase);
+    if(movingRight)
+        posX += ySpeed * (currenttime - timebase);
+}
+
+void idle()
+{
+  frame++;
+  currenttime = glutGet(GLUT_ELAPSED_TIME);
+  if(currenttime - elapsed > 5000)
+  {
+    grid->changeColor(nextColor);    
+    float color = rand() % 3 + 1; 
+    if(color == 1)
+    {
+      nextColor = Platform::Color::RED;
+    }
+    if(color == 2)
+    {
+      nextColor = Platform::Color::GREEN;
+    }
+    if(color == 3)
+    {
+      nextColor = Platform::Color::BLUE;
+    }
+    centroTest->setColor(nextColor);
+    elapsed = currenttime;
+  }
+
+  if (currenttime - timebase > 0.1)
+  {
+    moveTiki();
+    timebase = currenttime;
+    frame = 0;
+    glutPostRedisplay();
+  }
+
+}
+
+
 //main
 int main(int argc, char** argv) {
+  srand (time(NULL));
   glutInit(&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowSize (900, 900);
